@@ -79,9 +79,9 @@ public struct Example: SwiftProtobuf.Message {
   func jsonString() throws -> String
   init(jsonString: String) throws
 
-  // Messages can be serialized or deserialized to Protobuf text format:
-  func serializedText() -> String
-  init(serializedText: String) throws
+  // Messages can be serialized or deserialized to Protobuf TextFormat:
+  func textFormatString() -> String
+  init(textFormatString: String) throws
 
   // These are the generated methods used internally by the
   // serialization and deserialization mechanisms.
@@ -153,7 +153,7 @@ want to override the default generated behavior for any reason:
   // so that you can easily override the implementation.
   // You may override this method, but you should never call it directly.
   // The default generated implementation compares every field for equality.
-  public var isEqual(other: Example) -> Bool
+  public func isEqualTo(message: Example) -> Bool
 ```
 
 ## Enum API
@@ -678,6 +678,24 @@ public protocol ExtensionMap {
     public func fieldNumberForProto(messageType: Message.Type, protoFieldName: String) -> Int?
 }
 ```
+
+## Descriptors
+
+Some other languages expose _Descriptor_ objects for messages, enums, fields,
+and oneof, but not all languages. The `.proto` language also allows developers
+to add options to messages, fields, etc. that can be looked up at runtime in
+those descriptors.
+
+Support for descriptors ends up requiring some amount of code, but more
+importantly it requires capturing a large binary blob of data for every
+message, enum, oneof, etc. That data has two potenial issues, it bloats the
+binaries, and it is something that can be extracted from the binary to help
+reverse engineer details about the binary.
+
+For these reasons, SwiftProtobuf does not current support anything like the
+Descriptor objects. It is something that could get revisited in the future,
+but will need careful consideration; the bloat/size issues is of the most
+concern because of Swift's common use for mobile applications.
 
 ## Aside:  proto2 vs. proto3
 

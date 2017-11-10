@@ -14,8 +14,12 @@ func splitPath(pathname: String) -> (dir:String, base:String, suffix:String) {
   var dir = ""
   var base = ""
   var suffix = ""
-
-  for c in pathname.characters {
+#if swift(>=3.2)
+  let pathnameChars = pathname
+#else
+  let pathnameChars = pathname.characters
+#endif
+  for c in pathnameChars {
     if c == "/" {
       dir += base + suffix + String(c)
       base = ""
@@ -27,7 +31,12 @@ func splitPath(pathname: String) -> (dir:String, base:String, suffix:String) {
       suffix += String(c)
     }
   }
-  if suffix.characters.first != "." {
+#if swift(>=3.2)
+  let validSuffix = suffix.isEmpty || suffix.first == "."
+#else
+  let validSuffix = suffix.isEmpty || suffix.characters.first == "."
+#endif
+  if !validSuffix {
     base += suffix
     suffix = ""
   }
@@ -38,11 +47,16 @@ func partition(string: String, atFirstOccurrenceOf substring: String) -> (String
   guard let index = string.range(of: substring)?.lowerBound else {
     return (string, "")
   }
-  return (string.substring(to: index), string.substring(from: string.index(after: index)))
+  #if swift(>=4.0)
+    return (String(string[..<index]),
+            String(string[string.index(after: index)...]))
+  #else
+    return (string.substring(to: index), string.substring(from: string.index(after: index)))
+  #endif
 }
 
 func parseParameter(string: String?) -> [(key:String, value:String)] {
-  guard let string = string, string.characters.count > 0 else {
+  guard let string = string, !string.isEmpty else {
     return []
   }
   let parts = string.components(separatedBy: ",")
