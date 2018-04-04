@@ -36,12 +36,13 @@ private func wrapped_vsnprintf(destination: UnsafeMutableRawBufferPointer,
 /// Support parsing and formatting float/double values to/from UTF-8
 internal class DoubleFormatter {
     private var doubleFormatString: UnsafeMutableRawBufferPointer
-    private var work = UnsafeMutableRawBufferPointer.allocate(count: 128)
+	private var work = UnsafeMutableRawBufferPointer.allocate(byteCount: 128, alignment: 1)
 
     init() {
         let format: StaticString = "%.*g"
         let formatBytes = UnsafeBufferPointer(start: format.utf8Start, count: format.utf8CodeUnitCount)
-        doubleFormatString = UnsafeMutableRawBufferPointer.allocate(count: formatBytes.count + 1)
+        //doubleFormatString = UnsafeMutableRawBufferPointer.allocate(count: formatBytes.count + 1)
+		doubleFormatString = UnsafeMutableRawBufferPointer.allocate(byteCount: formatBytes.count + 1, alignment: 1)
         doubleFormatString.copyBytes(from: formatBytes)
         doubleFormatString[formatBytes.count] = 0
     }
@@ -64,7 +65,7 @@ internal class DoubleFormatter {
         }
         // Copy it to the work buffer and null-terminate it
         let source = UnsafeRawBufferPointer(start: bytes, count: count)
-        work.copyBytes(from:source)
+        work.copyMemory(from: source)
         work[count] = 0
 
         // Use C library strtod() to parse it
